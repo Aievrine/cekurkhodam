@@ -2,91 +2,194 @@ const express = require('express');
 const app = express();
 const port = 3000;
 
-// Array kutipan absurd
-const kutipan = [
-  "Jangan pernah menyerah, kecuali ada diskon besar di toko online",
-  "Kesuksesan itu seperti mie instan, cepat tapi tidak sehat",
-  "Hidup itu seperti sepeda, kalau berhenti ya jatuh sih",
-  "Jika kamu tidak bisa menjadi bintang, jadilah router WiFi, semua mencarimu",
-  "Tidur siang itu tidak malas, itu menghemat energi",
-  "Kalau tidak bisa membawa pulang piala, bawa pulang menu restoran saja",
-  "Saya tidak malas, saya sedang menghemat tenaga",
-  "Tersesat bukan berarti hilang, hanya saja GPS-nya error",
-  "Teman sejati adalah yang meminjamkan charger tanpa diminta"
+// Middleware untuk parsing data form
+app.use(express.urlencoded({ extended: true }));
+
+// Array khodam lucu
+const khodams = [
+  "Beruang Sunda",
+  "Lontong lumer",
+  "Tuyul Ngoding",
+  "Sendal Swallow",
+  "Kapurung",
+  "Cicak Sigma",
+  "Kucing Plenger",
+  "Kuda Poni",
+  "Ayam Albino"
 ];
 
-// Array emoji acak
-const emojis = [
-  "🤦‍♂️", "🐒", "🌮", "🤯", "🥳", "🦄", "🦥", "🍕", "🛌", 
-  "🚀", "🦖", "⏰", "🧠", "🌈", "🤡", "🧟‍♂️", "🧙‍♂️", "🦸‍♀️"
-];
-
-// Siapkan templat HTML
-const createMemePage = (quote, emoji) => `
+// Halaman awal dengan form input nama
+const getFormPage = () => `
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Meme Motivasi Absurd</title>
+  <title>Cek Kodam Kamu</title>
   <style>
-    body { 
-      background-color: #ff9966; 
-      font-family: Arial, sans-serif;
+    body {
+      background-color: #dff9fb;
+      font-family: 'Comic Sans MS', cursive;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      margin: 0;
       flex-direction: column;
+      margin: 0;
     }
-    .meme-container {
-      background: linear-gradient(45deg, #ff6b6b, #5f27cd);
+    .form-box {
+      background-color: white;
       padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
       text-align: center;
-      max-width: 500px;
+      width: 300px;
     }
-    .quote { 
-      font-size: 24px; 
-      color: white;
-      margin-bottom: 20px;
-      font-weight: bold;
+    h1 {
+      color: #6c5ce7;
     }
-    .emoji { font-size: 70px; }
+    input[type="text"] {
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+      width: 100%;
+      font-size: 16px;
+    }
     button {
-      margin-top: 40px;
-      padding: 12px 24px;
-      background-color: #6c5ce7;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #74b9ff;
       color: white;
       border: none;
-      border-radius: 50px;
+      border-radius: 20px;
       font-size: 16px;
       cursor: pointer;
-      transition: transform 0.2s;
+      width: 100%;
     }
-    button:hover { transform: scale(1.05); }
+    button:hover {
+      background-color: #0984e3;
+    }
+    .footer {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #2d3436;
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .program {
+      font-size: 14px;
+      color: #2d3436;
+      font-style: italic;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <div class="meme-container">
-    <div class="quote">"${quote}"</div>
-    <div class="emoji">${emoji}</div>
+  <div class="form-box">
+    <h1>Masukkan Namamu</h1>
+    <form action="/hasil" method="POST">
+      <input type="text" name="nama" placeholder="Contoh: Aerin" required>
+      <br>
+      <button type="submit">Cek Kodam Kamu </button>
+    </form>
   </div>
-  <button onclick="window.location.reload()">Meme Baru!</button>
+  <div class="footer">by Aerin Natasya</div>
+  <div class="program">1 Sekolah 1 Programmer Andalan</div>
 </body>
 </html>
 `;
 
-// Route untuk halaman utama
+// Halaman hasil
+const getResultPage = (nama, kodam) => `
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Hasil Kodam</title>
+  <style>
+    body {
+      background-color: #dff9fb;
+      font-family: 'Comic Sans MS', cursive;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      text-align: center;
+      margin: 0;
+    }
+    .box {
+      background-color: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      width: 300px;
+    }
+    .nama {
+      font-size: 26px;
+      font-weight: bold;
+      color: #2d3436;
+      margin-bottom: 15px;
+    }
+    .kodam {
+      font-size: 20px;
+      color: #6c5ce7;
+      font-style: italic;
+    }
+    a {
+      margin-top: 30px;
+      display: inline-block;
+      padding: 10px 20px;
+      background-color: #74b9ff;
+      color: white;
+      text-decoration: none;
+      border-radius: 20px;
+    }
+    a:hover {
+      background-color: #0984e3;
+    }
+    .footer {
+      margin-top: 30px;
+      font-size: 18px;
+      color: #2d3436;
+      font-weight: bold;
+      text-align: center;
+      text-transform: uppercase;
+    }
+    .program {
+      font-size: 14px;
+      color: #2d3436;
+      font-style: italic;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <div class="nama">${nama}</div>
+    <div class="kodam">${kodam}</div>
+    <a href="/">Coba Lagi</a>
+  </div>
+  <div class="footer">by Aerin Natasya</div>
+  <div class="program">1 Sekolah 1 Programmer Andalan</div>
+</body>
+</html>
+`;
+
+// Route halaman awal
 app.get('/', (req, res) => {
-  const randomQuote = kutipan[Math.floor(Math.random() * kutipan.length)];
-  const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-  res.send(createMemePage(randomQuote, randomEmoji));
+  res.send(getFormPage());
 });
 
-// Mulai server
+// Route hasil dari form
+app.post('/hasil', (req, res) => {
+  const nama = req.body.nama;
+  const randomKhodam = khodams[Math.floor(Math.random() * khodams.length)];
+  res.send(getResultPage(nama, randomKhodam));
+});
+
+// Start server
 app.listen(port, () => {
-  console.log(`Aplikasi meme absurd berjalan di http://localhost:${port}`);
+  console.log(`Aplikasi khodam lucu jalan di http://localhost:${port}`);
 });
