@@ -91,7 +91,7 @@ const getFormPage = () => `
     <form action="/hasil" method="POST">
       <input type="text" name="nama" placeholder="Contoh: Aerin" required>
       <br>
-      <button type="submit">Cek Kodam Kamu </button>
+      <button type="submit">Cek Kodam</button>
     </form>
   </div>
   <div class="footer">by Aerin Natasya</div>
